@@ -1,0 +1,105 @@
+#include "Header.h"
+#include <iostream>
+using namespace std;
+
+Polynomial::Polynomial() //Default Constructor
+{
+	this->power = 0;
+	this->coefs = new double[1];
+}
+Polynomial::Polynomial(const Polynomial& poly)  //Copy-Constructor
+{
+	this->power = poly.getPower; 
+	for (int i = 0; i <= this->power; i++)
+	{
+		this->coefs[i] = poly.getCoef(i);
+	}
+}
+Polynomial & Polynomial::operator=(const Polynomial& poly) //Operator =
+{
+	if (this == &poly)
+	{
+		return *this;
+	}
+	else
+	{
+		delete[] coefs;
+		this->power = poly.power;
+		for (int i = 0; i <= this->power; i++)
+		{
+			this->coefs[i] = poly.getCoef(i); //get function here...
+		}
+	}
+}
+
+Polynomial Polynomial::operator+(const Polynomial& poly) //operator +
+{
+	int minPower, maxPower;
+	Polynomial result;
+	if (this->power <= poly.getPower)
+	{
+		minPower = this->power;
+		maxPower = poly.getPower;
+	}
+	else
+	{
+		minPower = poly.getPower;
+		maxPower = this->power;
+	}
+	result.setPower(maxPower);
+	for (int i = 0; i <= minPower; i++)
+	{
+		result.setCoef(this->coefs[i] + poly.getCoef(i), i);
+	}
+	for (int i = minPower+1; i <= maxPower; i++)
+	{
+		if (poly.getPower == maxPower)
+		{
+			result.setCoef(poly.getCoef(i) , i);
+		}
+		else
+		{
+			result.setCoef(this->coefs[i], i);
+		}
+	}
+}
+
+void Polynomial::setCoef(double coef, int power) //set index a coef.
+{
+	if (power > this->power)
+	{
+		double * newArr = new double[power + 1];
+		for (int i = 0; i <= this->power; i++)
+		{
+			newArr[i] = coefs[i];
+		}
+		for (int i = this->power+1; i <= power; i++)
+		{
+			newArr[i] = 0;
+		}
+		this->power = power;
+		delete[] coefs;
+		coefs = newArr;
+	}
+	coefs[power] = coef;
+}
+
+int Polynomial::getPower() const
+{
+	return power;
+}
+
+double Polynomial::getCoef(int index) const
+{
+	return coefs[index];
+}
+
+void Polynomial::setPower(double power)
+{
+	this->power = power;
+}
+
+Polynomial::~Polynomial() //Destructor
+{
+	delete[] coefs;
+}
