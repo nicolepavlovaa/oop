@@ -1,105 +1,123 @@
-#include "Header.h"
 #include <iostream>
+#include "Header.h"
+#include <algorithm>
 using namespace std;
 
-Polynomial::Polynomial() //Default Constructor
+Polynomial::Polynomial()
 {
 	this->power = 0;
 	this->coefs = new double[1];
+	coefs[0] = 0;
 }
-Polynomial::Polynomial(const Polynomial& poly)  //Copy-Constructor
+Polynomial::Polynomial(const Polynomial& poly)
 {
-	this->power = poly.getPower; 
-	for (int i = 0; i <= this->power; i++)
-	{
-		this->coefs[i] = poly.getCoef(i);
-	}
+	makeCopy(poly);
 }
-Polynomial & Polynomial::operator=(const Polynomial& poly) //Operator =
+int Polynomial::getPower() const
+{
+	return this->power;
+}
+Polynomial & Polynomial::operator=(const Polynomial& poly)
 {
 	if (this == &poly)
 	{
 		return *this;
 	}
-	else
-	{
-		delete[] coefs;
-		this->power = poly.power;
-		for (int i = 0; i <= this->power; i++)
-		{
-			this->coefs[i] = poly.getCoef(i); //get function here...
-		}
-	}
+	delete[] coefs;
+	makeCopy(poly);
 }
-
-Polynomial Polynomial::operator+(const Polynomial& poly) //operator +
+Polynomial Polynomial::operator+(const Polynomial& poly)
 {
-	int minPower, maxPower;
 	Polynomial result;
-	if (this->power <= poly.getPower)
+	result.setPower(max(this->getPower, poly.getPower));
+	for (int i = 0; i <= min(this->getPower, poly.getPower); i++)
 	{
-		minPower = this->power;
-		maxPower = poly.getPower;
+		result.setCoef(i, this->getCoef(i) + poly.getCoef(i));
 	}
-	else
+	for (int i = min(this->getPower, poly.getPower)+1; i <= result.getPower; i++)
 	{
-		minPower = poly.getPower;
-		maxPower = this->power;
+		if (this->getPower >= poly.getPower)
+		{
+			result.setCoef(i, this->getCoef(i));
+		}
+		else result.setCoef(i, poly.getCoef(i));
 	}
+}
+Polynomial Polynomial::operator*(const Polynomial& poly)
+{
+	Polynomial result;
+	double maxPower=this->getPower*poly.getPower;
+	double minPower = min(this->getPower, poly.getPower);
 	result.setPower(maxPower);
-	for (int i = 0; i <= minPower; i++)
+	for (int i = 0; i <= maxPower; i++)
 	{
-		result.setCoef(this->coefs[i] + poly.getCoef(i), i);
-	}
-	for (int i = minPower+1; i <= maxPower; i++)
-	{
-		if (poly.getPower == maxPower)
+		for (int j = 0; j <= minPower; j++)
 		{
-			result.setCoef(poly.getCoef(i) , i);
-		}
-		else
-		{
-			result.setCoef(this->coefs[i], i);
+			if (poly.getPower <= this->getPower)
+			{
+				result.setCoef(i*j, poly.getCoef(j)*this->getCoef(i));
+			}
+			else
+			{
+				result.setCoef(i*j, poly.getCoef(i)*this->getCoef(j));
+			}
 		}
 	}
 }
-
-void Polynomial::setCoef(double coef, int power) //set index a coef.
+Polynomial Polynomial::derivative()
 {
-	if (power > this->power)
+	Polynomial result;
+	result.setPower(this->getPower - 1);
+	for (int i = 0; i <= this->getPower; i++)
 	{
-		double * newArr = new double[power + 1];
-		for (int i = 0; i <= this->power; i++)
-		{
-			newArr[i] = coefs[i];
-		}
-		for (int i = this->power+1; i <= power; i++)
-		{
-			newArr[i] = 0;
-		}
-		this->power = power;
-		delete[] coefs;
-		coefs = newArr;
+		result.setCoef(i, this->getCoef(i + 1)*(i + 1));
 	}
-	coefs[power] = coef;
-}
-
-int Polynomial::getPower() const
-{
-	return power;
 }
 
 double Polynomial::getCoef(int index) const
 {
-	return coefs[index];
+	if (index > this->power)
+	{
+		return 0;
+	}
+	return this->coefs[index];
 }
-
-void Polynomial::setPower(double power)
+void Polynomial::setPower(int power)
 {
 	this->power = power;
 }
-
-Polynomial::~Polynomial() //Destructor
+void Polynomial::setCoef(int power, double coef)
+{
+	int minPower, maxPower;
+	minPower = min(this->power, power);
+	maxPower = max(this->power, power);
+	if (this->power < power)
+	{
+		double * tempCoefs = new double[maxPower + 1];
+		for (int i = 0; i <= minPower; i++)
+		{
+			tempCoefs[i] = coefs[i];
+		}
+		for (int i = minPower+1; i <= maxPower; i++)
+		{
+			tempCoefs[i] = 0;
+		}
+		this->power = power;
+		delete[] coefs;
+		coefs = tempCoefs;
+	}
+	coefs[power] = coef;
+}
+void Polynomial::makeCopy(const Polynomial& poly)
+{
+	this->power = poly.getPower;
+	this->coefs = new double[this->power];
+	for (int i = 0; i <= this->power; i++)
+	{
+		this->coefs[i] = poly.coefs[i];
+	}
+}
+Polynomial::~Polynomial()
 {
 	delete[] coefs;
 }
