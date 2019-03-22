@@ -1,94 +1,90 @@
 #include <iostream>
-#include "Header.h"
+#include "Student.h"
 using namespace std;
 #include <cstring>
 
-char * Student::getName()
-{
-	return name;
-}
-int Student::getFn()
-{
-	return fn;
-}
-int Student::getCourse()
-{
-	return course;
-}
-
-void Student::setName(char * n) 
+void Student::setName(const char * n)
 {
 	delete[] name;
-	int nameLength = strlen(n);
-	name = new char[nameLength + 1];
-	strcpy_s(name,strlen(n)+1, n);
+	const int length = strlen(n);
+	name = new char[length + 1];
+	strcpy_s(name, strlen(n) + 1, n);
 }
 void Student::setFn(int facNum)
 {
-	fn = facNum;
+	this->fn = facNum;
 }
 void Student::setCourse(int c)
 {
+	this->course = c;
+}
+char * Student::getName() const
+{
+	return name;
+}
+int Student::getFn() const
+{
+	return fn;
+}
+int Student::getCourse() const
+{
+	return course;
+}
+void Student::print()
+{
+	cout << "name: " << name << " fn: " << fn << " course: " << course << endl;
+}
+Student::Student(const char * n, int facNum, int c)
+{
+	fn = facNum;
 	course = c;
-}
-Student::Student()
-{
-	name = nullptr;
-	fn = 0;
-	course = 0;
-}
-Student::Student(char * n, int facNum, int c) : name(nullptr), fn(facNum), course(c)
-{
 	setName(n);
 }
-Student::~Student()
+Student::Student(Student& other) :name(nullptr), fn(other.fn), course(other.course)
 {
-	delete[] name;
+	setName(other.name);
 }
-Student::Student(Student& other) : name(nullptr), fn(other.fn), course(other.course)
+Student& Student::operator=(Student& other) 
 {
-	setName(other.getName());
-}
-
-Student & Student::operator=(Student & other)
-{
-	if (this == &other)
+	if (this != &other)
 	{
-		return *this;
+		fn = other.fn;
+		course = other.course;
+		delete[] name;
+		name = new char[strlen(other.name) + 1];
+		strcpy_s(name, strlen(other.name) + 1, other.name);
 	}
-	delete[] name;
-	this->fn = other.getFn();
-	this->course = other.getCourse();
-	this->name = new char[strlen(other.getName())+1];
-	strcpy_s(this->name,strlen(other.getName()) + 1,other.getName());
 	return *this;
 }
-
-bool Student::operator==(Student & other)
+bool Student::operator==(Student& other)
 {
-	if (fn==other.getFn()&& course==other.getCourse() && strcmp(name, other.getName())==0)
+	if (fn == other.fn && course == other.course && strcmp(this->name, other.name) == 0)
 	{
 		return true;
 	}
 	return false;
 }
-
-bool Student::operator!=(Student & other)
+istream & operator>>(std::istream & is, Student & other)
 {
-	if (fn == other.getFn() || course == other.getCourse() || strcmp(name, other.getName()) == 0)
+	is.getline(other.name, 200);
+	is >> other.fn >> other.course;
+	return is;
+}
+ostream & operator<<(std::ostream & os, const Student & other)
+{
+	os << "name: " << other.name << endl << "fn: " << other.fn << endl << "course: " << other.course;
+	return os;
+}
+
+bool Student::operator!=(Student& other)
+{
+	if (fn != other.fn || course != other.course || strcmp(this->name, other.name) != 0)
 	{
-		return false;
+		return true;
 	}
-	return true;
-
+	return false;
 }
-
-void Student::print()
+Student::~Student()
 {
-	cout << "Student: " << name << " fn: " << fn << " course " << course << endl;
-}
-int main()
-{
-	system("pause");
-	return 0;
+	delete[] name;
 }
