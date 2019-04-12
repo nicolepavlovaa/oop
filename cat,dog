@@ -1,0 +1,81 @@
+#include <iostream>
+using namespace std;
+
+class Animal
+{
+private:
+	int age;
+	double height;
+	double kg;
+	
+public:
+	int getAge()
+	{
+		return this->age;
+	}
+	double getHeight()
+	{
+		return this->height;
+	}
+	double getKg()
+	{
+		return this->kg;
+	}
+	void setAge(int age)
+	{
+		this->age = age;
+	}
+	void setHeight(int height)
+	{
+		this->height = height;
+	}
+	void setKg(int kg)
+	{
+		this->kg = kg;
+	}
+	void growUp()
+	{
+		this->age = this->age + 1;
+	}
+	Animal(int age = 0, double height=0, double kg=0)
+	{
+		setAge(age);
+		setHeight(height);
+		setKg(kg);
+	}
+};
+class Dog : public Animal
+{
+public:
+	void growUp()
+	{
+		Animal::growUp();
+		this->setKg(this->getKg() + 1);
+		this->setHeight(this->getHeight() + 1);
+	}
+	Dog(int age = 0, double height=0, double kg=0) : Animal(age, height, kg)
+	{
+	}
+};
+class Cat : public Animal
+{
+public:
+	void growUp()
+	{
+		Animal::growUp();
+		this->setKg(this->getKg() + 0.5);
+		this->setHeight(this->getHeight() + 2);
+	}
+	Cat(int age = 0, double height = 0, double kg = 0) :Animal(age, height, kg)
+	{
+	}
+};
+
+int main()
+{
+	Dog d1(5, 30, 50);
+	cout << d1.getHeight();
+
+	system("pause");
+	return 0;
+}
